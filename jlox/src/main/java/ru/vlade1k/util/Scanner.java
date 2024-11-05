@@ -14,6 +14,7 @@ import static ru.vlade1k.token.TokenType.LEFT_PAREN;
 import static ru.vlade1k.token.TokenType.LESS;
 import static ru.vlade1k.token.TokenType.LESS_EQUAL;
 import static ru.vlade1k.token.TokenType.MINUS;
+import static ru.vlade1k.token.TokenType.NUMBER;
 import static ru.vlade1k.token.TokenType.PLUS;
 import static ru.vlade1k.token.TokenType.RIGHT_BRACE;
 import static ru.vlade1k.token.TokenType.RIGHT_PAREN;
@@ -101,13 +102,16 @@ public class Scanner {
       case '\t':
         // Ignore whitespace.
         break;
-
       case '\n':
         line++;
         break;
       case '"': string(); break;
       default:
-        JLoxInterpreter.error(line, "Unexpected character");
+        if (isDigit(c)) {
+          number();
+        } else {
+          JLoxInterpreter.error(line, "Unexpected character");
+        }
         break;
     }
   }
@@ -131,6 +135,22 @@ public class Scanner {
     addToken(STRING, value);
   }
 
+  private void number() {
+    while(isDigit(peek())) advance();
+
+    if (peek() == '.' && isDigit(peekNext())) {
+      advance();
+      while(isDigit(peek())) advance();
+    }
+
+    addToken(NUMBER, Double.parseDouble(source.substring(start, current)));
+  }
+
+  private char peekNext() {
+    if (current + 1 >= source.length()) return '\0';
+    return source.charAt(current + 1);
+  }
+
   private char peek() {
     if (isAtEnd()) return '\0';
     return source.charAt(current);
@@ -140,11 +160,15 @@ public class Scanner {
     return current >= source.length();
   }
 
+  private boolean isDigit(char c) {
+    return c >= '0' && c <= '9';
+  }
+
   private boolean match(char expected) {
     if (isAtEnd()) return false;
     if (source.charAt(current) != expected) return false;
 
-    current++;
+    advance();
     return true;
   }
 }
