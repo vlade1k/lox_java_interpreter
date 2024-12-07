@@ -1,8 +1,8 @@
-package ru.vlade1k.ast;
+package ru.vlade1k.ast.expression;
 
 import ru.vlade1k.ast.visitor.ExpressionVisitor;
 
-public class GroupingExpression extends Expression{
+public class GroupingExpression extends Expression {
   private Expression expression;
 
   public GroupingExpression(Expression expression) {

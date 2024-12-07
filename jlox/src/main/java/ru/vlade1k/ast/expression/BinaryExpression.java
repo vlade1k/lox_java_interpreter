@@ -1,4 +1,4 @@
-package ru.vlade1k.ast;
+package ru.vlade1k.ast.expression;
 
 import ru.vlade1k.ast.visitor.ExpressionVisitor;
 import ru.vlade1k.token.Token;
