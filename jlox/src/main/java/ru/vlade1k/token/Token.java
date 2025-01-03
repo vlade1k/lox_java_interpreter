@@ -18,4 +18,19 @@ public class Token {
     return type + " " + lexeme + " " + literal;
   }
 
+  public TokenType getType() {
+    return type;
+  }
+
+  public Object getLiteral() {
+    return literal;
+  }
+
+  public int getLine() {
+    return line;
+  }
+
+  public String getLexeme() {
+    return this.lexeme;
+  }
 }

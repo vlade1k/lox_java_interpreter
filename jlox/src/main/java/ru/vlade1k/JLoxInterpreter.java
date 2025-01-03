@@ -1,6 +1,7 @@
 package ru.vlade1k;
 
 import ru.vlade1k.token.Token;
+import ru.vlade1k.token.TokenType;
 import ru.vlade1k.util.Scanner;
 
 import java.io.BufferedReader;
@@ -61,6 +62,14 @@ public class JLoxInterpreter {
 
   public static void error(int line, String message) {
     report(line, "", message);
+  }
+
+  static void error(Token token, String message) {
+    if (token.getType() == TokenType.EOF) {
+      report(token.getLine(), " at end", message);
+    } else {
+      report(token.getLine(), " at '" + token.getLexeme() + "'", message);
+    }
   }
 
   private static void report(int line, String where, String message) {
