@@ -1,6 +1,6 @@
-package ru.vlade1k.ast.expression;
+package ru.vlade1k.parser.ast.expression;
 
-import ru.vlade1k.ast.visitor.ExpressionVisitor;
+import ru.vlade1k.parser.ast.visitor.ExpressionVisitor;
 
 public class LiteralExpression extends Expression {
   private Object value;

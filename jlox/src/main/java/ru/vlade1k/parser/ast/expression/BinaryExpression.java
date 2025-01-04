@@ -1,7 +1,7 @@
-package ru.vlade1k.ast.expression;
+package ru.vlade1k.parser.ast.expression;
 
-import ru.vlade1k.ast.visitor.ExpressionVisitor;
-import ru.vlade1k.token.Token;
+import ru.vlade1k.parser.ast.visitor.ExpressionVisitor;
+import ru.vlade1k.scanner.token.Token;
 
 public class BinaryExpression extends Expression {
   private final Expression left;

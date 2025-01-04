@@ -1,4 +1,4 @@
-package ru.vlade1k.ast.exceptions;
+package ru.vlade1k.parser.exceptions;
 
 public class ParseException extends RuntimeException {
 

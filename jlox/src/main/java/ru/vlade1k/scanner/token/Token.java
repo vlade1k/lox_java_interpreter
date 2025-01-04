@@ -1,4 +1,4 @@
-package ru.vlade1k.token;
+package ru.vlade1k.scanner.token;
 
 public class Token {
   private final TokenType type;

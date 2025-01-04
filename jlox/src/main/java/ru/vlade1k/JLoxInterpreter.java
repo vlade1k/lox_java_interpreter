@@ -1,9 +1,10 @@
 package ru.vlade1k;
 
-import ru.vlade1k.ast.expression.Expression;
-import ru.vlade1k.token.Token;
-import ru.vlade1k.token.TokenType;
-import ru.vlade1k.util.Scanner;
+import ru.vlade1k.parser.ast.expression.Expression;
+import ru.vlade1k.parser.Parser;
+import ru.vlade1k.scanner.token.Token;
+import ru.vlade1k.scanner.token.TokenType;
+import ru.vlade1k.scanner.Scanner;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -66,7 +67,7 @@ public class JLoxInterpreter {
     report(line, "", message);
   }
 
-  static void error(Token token, String message) {
+  public static void error(Token token, String message) {
     if (token.getType() == TokenType.EOF) {
       report(token.getLine(), " at end", message);
     } else {

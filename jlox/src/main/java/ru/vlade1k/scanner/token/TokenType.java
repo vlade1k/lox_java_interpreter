@@ -1,4 +1,4 @@
-package ru.vlade1k.token;
+package ru.vlade1k.scanner.token;
 
 public enum TokenType {
   LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE,

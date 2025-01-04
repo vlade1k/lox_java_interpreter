@@ -1,10 +1,10 @@
-package ru.vlade1k.util;
+package ru.vlade1k.scanner;
 
-import static ru.vlade1k.token.TokenType.*;
+import static ru.vlade1k.scanner.token.TokenType.*;
 
 import ru.vlade1k.JLoxInterpreter;
-import ru.vlade1k.token.Token;
-import ru.vlade1k.token.TokenType;
+import ru.vlade1k.scanner.token.Token;
+import ru.vlade1k.scanner.token.TokenType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
