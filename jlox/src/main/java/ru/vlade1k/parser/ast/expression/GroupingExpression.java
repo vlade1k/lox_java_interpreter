@@ -13,4 +13,8 @@ public class GroupingExpression extends Expression {
   public <R> R accept(ExpressionVisitor<R> visitor) {
     return visitor.visitGrouping(this);
   }
+
+  public Expression getExpression() {
+    return expression;
+  }
 }

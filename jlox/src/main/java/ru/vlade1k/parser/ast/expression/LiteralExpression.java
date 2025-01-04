@@ -3,7 +3,7 @@ package ru.vlade1k.parser.ast.expression;
 import ru.vlade1k.parser.ast.visitor.ExpressionVisitor;
 
 public class LiteralExpression extends Expression {
-  private Object value;
+  private final Object value;
 
   public LiteralExpression(Object literalValue) {
     this.value = literalValue;
@@ -12,5 +12,9 @@ public class LiteralExpression extends Expression {
   @Override
   public <R> R accept(ExpressionVisitor<R> visitor) {
     return visitor.visitLiteral(this);
+  }
+
+  public Object getValue() {
+    return value;
   }
 }

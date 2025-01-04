@@ -1,5 +1,7 @@
 package ru.vlade1k;
 
+import ru.vlade1k.interpreter.Interpreter;
+import ru.vlade1k.interpreter.exceptions.RuntimeLoxException;
 import ru.vlade1k.parser.ast.expression.Expression;
 import ru.vlade1k.parser.Parser;
 import ru.vlade1k.scanner.token.Token;
@@ -16,7 +18,9 @@ import java.util.List;
 
 public class JLoxInterpreter {
 
+  private static final Interpreter interpreter = new Interpreter();
   private static boolean hadError;
+  private static boolean hadRuntimeError = false;
 
   public static void main(String[] args) throws IOException {
     if (args.length > 1) {
@@ -36,6 +40,9 @@ public class JLoxInterpreter {
 
     if (hadError) {
       System.exit(65);
+    }
+    if (hadRuntimeError) {
+      System.exit(70);
     }
   }
 
@@ -58,9 +65,13 @@ public class JLoxInterpreter {
     Scanner scanner = new Scanner(source);
     List<Token> tokens = scanner.scanTokens();
     Parser parser = new Parser(tokens);
+
+    //TODO: should add visualization by something library
     Expression expression = parser.parse();
 
     if (hadError) return;
+
+    interpreter.interpret(expression);
   }
 
   public static void error(int line, String message) {
@@ -78,5 +89,10 @@ public class JLoxInterpreter {
   private static void report(int line, String where, String message) {
     System.err.println("[line " + line + "] Error" + where + ": " + message);
     hadError = true;
+  }
+
+  public static void runtimeError(RuntimeLoxException error) {
+    System.err.println(error.getMessage() + "\n[line " + error.getToken().getLine() + "]");
+    hadRuntimeError = true;
   }
 }

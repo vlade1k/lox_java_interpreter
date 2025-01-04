@@ -18,4 +18,16 @@ public class BinaryExpression extends Expression {
   public <R> R accept(ExpressionVisitor<R> visitor) {
     return visitor.visitBinary(this);
   }
+
+  public Expression getRight() {
+    return right;
+  }
+
+  public Expression getLeft() {
+    return left;
+  }
+
+  public Token getOperator() {
+    return operator;
+  }
 }

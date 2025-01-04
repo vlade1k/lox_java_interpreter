@@ -16,4 +16,12 @@ public class UnaryExpression extends Expression {
   public <R> R accept(ExpressionVisitor<R> visitor) {
     return visitor.visitUnary(this);
   }
+
+  public Expression getRight() {
+    return right;
+  }
+
+  public Token getOperator() {
+    return operator;
+  }
 }
