@@ -15,6 +15,7 @@ import static ru.vlade1k.token.TokenType.NIL;
 import static ru.vlade1k.token.TokenType.NUMBER;
 import static ru.vlade1k.token.TokenType.PLUS;
 import static ru.vlade1k.token.TokenType.RIGHT_PAREN;
+import static ru.vlade1k.token.TokenType.SEMICOLON;
 import static ru.vlade1k.token.TokenType.SLASH;
 import static ru.vlade1k.token.TokenType.STAR;
 import static ru.vlade1k.token.TokenType.STRING;
@@ -163,5 +164,27 @@ public class Parser {
   private ParseException error(Token token, String message) {
     JLoxInterpreter.error(token, message);
     return new ParseException();
+  }
+
+  private void synchronize() {
+    advance();
+
+    while (!isAtEnd()) {
+      if (previous().getType() == SEMICOLON) return;
+
+      switch (peek().getType()) {
+        case CLASS:
+        case FUN:
+        case VAR:
+        case FOR:
+        case IF:
+        case WHILE:
+        case PRINT:
+        case RETURN:
+          return;
+      }
+
+      advance();
+    }
   }
 }
