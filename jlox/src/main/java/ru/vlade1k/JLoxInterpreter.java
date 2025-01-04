@@ -1,5 +1,6 @@
 package ru.vlade1k;
 
+import ru.vlade1k.ast.expression.Expression;
 import ru.vlade1k.token.Token;
 import ru.vlade1k.token.TokenType;
 import ru.vlade1k.util.Scanner;
@@ -55,9 +56,10 @@ public class JLoxInterpreter {
   private static void run(String source) {
     Scanner scanner = new Scanner(source);
     List<Token> tokens = scanner.scanTokens();
-    for (Token token : tokens) {
-      System.out.println(token);
-    }
+    Parser parser = new Parser(tokens);
+    Expression expression = parser.parse();
+
+    if (hadError) return;
   }
 
   public static void error(int line, String message) {

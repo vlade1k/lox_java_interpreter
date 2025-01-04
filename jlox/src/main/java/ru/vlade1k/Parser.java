@@ -40,6 +40,14 @@ public class Parser {
     this.tokens = tokens;
   }
 
+  public Expression parse() {
+    try {
+      return expression();
+    } catch (ParseException error) {
+      return null;
+    }
+  }
+
   private Expression expression() {
     return equality();
   }
