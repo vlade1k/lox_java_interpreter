@@ -2,6 +2,7 @@ package ru.vlade1k.parser;
 
 import static ru.vlade1k.scanner.token.TokenType.BANG;
 import static ru.vlade1k.scanner.token.TokenType.BANG_EQUAL;
+import static ru.vlade1k.scanner.token.TokenType.ELSE;
 import static ru.vlade1k.scanner.token.TokenType.EOF;
 import static ru.vlade1k.scanner.token.TokenType.EQUAL;
 import static ru.vlade1k.scanner.token.TokenType.EQUAL_EQUAL;
@@ -9,6 +10,7 @@ import static ru.vlade1k.scanner.token.TokenType.FALSE;
 import static ru.vlade1k.scanner.token.TokenType.GREATER;
 import static ru.vlade1k.scanner.token.TokenType.GREATER_EQUAL;
 import static ru.vlade1k.scanner.token.TokenType.IDENTIFIER;
+import static ru.vlade1k.scanner.token.TokenType.IF;
 import static ru.vlade1k.scanner.token.TokenType.LEFT_BRACE;
 import static ru.vlade1k.scanner.token.TokenType.LEFT_PAREN;
 import static ru.vlade1k.scanner.token.TokenType.LESS;
@@ -35,6 +37,7 @@ import ru.vlade1k.parser.ast.expression.GroupingExpression;
 import ru.vlade1k.parser.ast.expression.LiteralExpression;
 import ru.vlade1k.parser.ast.expression.UnaryExpression;
 import ru.vlade1k.parser.ast.expression.VariableExpression;
+import ru.vlade1k.parser.ast.statements.IfStatement;
 import ru.vlade1k.parser.ast.statements.Statement;
 import ru.vlade1k.parser.ast.statements.StatementBlock;
 import ru.vlade1k.parser.ast.statements.StatementExpression;
@@ -89,6 +92,10 @@ public class Parser {
   }
 
   private Statement statement() {
+    if (match(IF)) {
+      return ifStatement();
+    }
+
     if (match(PRINT)) {
       return printStatement();
     }
@@ -98,6 +105,20 @@ public class Parser {
     }
 
     return expressionStatement();
+  }
+
+  private Statement ifStatement() {
+    consume(LEFT_PAREN, "Expect '(' after 'if'");
+    Expression condition = expression();
+    consume(RIGHT_PAREN, "Expect ')' after 'if'");
+
+    Statement ifBranch = statement();
+    Statement elseBranch = null;
+    if (match(ELSE)) {
+      elseBranch = statement();
+    }
+
+    return new IfStatement(condition, ifBranch, elseBranch);
   }
 
   private List<Statement> block() {

@@ -9,6 +9,7 @@ import ru.vlade1k.parser.ast.expression.GroupingExpression;
 import ru.vlade1k.parser.ast.expression.LiteralExpression;
 import ru.vlade1k.parser.ast.expression.UnaryExpression;
 import ru.vlade1k.parser.ast.expression.VariableExpression;
+import ru.vlade1k.parser.ast.statements.IfStatement;
 import ru.vlade1k.parser.ast.statements.Statement;
 import ru.vlade1k.parser.ast.statements.StatementBlock;
 import ru.vlade1k.parser.ast.statements.StatementExpression;
@@ -93,19 +94,6 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
   }
 
   @Override
-  public Void visitStatementExpression(StatementExpression statement) {
-    evaluate(statement.getValue());
-    return null;
-  }
-
-  @Override
-  public Void visitPrintStatement(StatementPrint statementPrint) {
-    Object value = evaluate(statementPrint.getValue());
-    System.out.println(stringify(value));
-    return null;
-  }
-
-  @Override
   public Object visitGrouping(GroupingExpression groupingExpression) {
     return evaluate(groupingExpression.getExpression());
   }
@@ -152,6 +140,30 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
   @Override
   public Void visitBlockStatement(StatementBlock statementBlock) {
     executeBlock(statementBlock.getStatements(), new Environment(environment));
+    return null;
+  }
+
+  @Override
+  public Void visitStatementExpression(StatementExpression statement) {
+    evaluate(statement.getValue());
+    return null;
+  }
+
+  @Override
+  public Void visitPrintStatement(StatementPrint statementPrint) {
+    Object value = evaluate(statementPrint.getValue());
+    System.out.println(stringify(value));
+    return null;
+  }
+
+  @Override
+  public Void visitIfStatement(IfStatement ifStatement) {
+    if (isTruthy(evaluate(ifStatement.getCondition()))) {
+      execute(ifStatement.getIfBranch());
+    } else if (ifStatement.getElseBranch() != null) {
+      execute(ifStatement.getElseBranch());
+    }
+
     return null;
   }
 
