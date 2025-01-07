@@ -133,8 +133,8 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
 
   @Override
   public Object visitAssignment(AssignmentExpression expression) {
-    Object value = expression.getValue();
-    environment.assign(expression.getName(), value);
+    Expression value = expression.getValue();
+    environment.assign(expression.getName(), evaluate(value));
     return value;
   }
 

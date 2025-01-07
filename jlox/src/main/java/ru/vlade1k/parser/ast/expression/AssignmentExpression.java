@@ -14,7 +14,7 @@ public class AssignmentExpression extends Expression {
 
   @Override
   public <R> R accept(ExpressionVisitor<R> visitor) {
-    return null;
+    return visitor.visitAssignment(this);
   }
 
   public Token getName() {
