@@ -2,11 +2,11 @@ package ru.vlade1k;
 
 import ru.vlade1k.interpreter.Interpreter;
 import ru.vlade1k.interpreter.exceptions.RuntimeLoxException;
-import ru.vlade1k.parser.ast.expression.Expression;
 import ru.vlade1k.parser.Parser;
+import ru.vlade1k.parser.ast.statements.Statement;
+import ru.vlade1k.scanner.Scanner;
 import ru.vlade1k.scanner.token.Token;
 import ru.vlade1k.scanner.token.TokenType;
-import ru.vlade1k.scanner.Scanner;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -67,11 +67,11 @@ public class JLoxInterpreter {
     Parser parser = new Parser(tokens);
 
     //TODO: should add visualization by something library
-    Expression expression = parser.parse();
+    List<Statement> statements = parser.parse();
 
     if (hadError) return;
 
-    interpreter.interpret(expression);
+    interpreter.interpret(statements);
   }
 
   public static void error(int line, String message) {

@@ -14,6 +14,7 @@ import static ru.vlade1k.scanner.token.TokenType.MINUS;
 import static ru.vlade1k.scanner.token.TokenType.NIL;
 import static ru.vlade1k.scanner.token.TokenType.NUMBER;
 import static ru.vlade1k.scanner.token.TokenType.PLUS;
+import static ru.vlade1k.scanner.token.TokenType.PRINT;
 import static ru.vlade1k.scanner.token.TokenType.RIGHT_PAREN;
 import static ru.vlade1k.scanner.token.TokenType.SEMICOLON;
 import static ru.vlade1k.scanner.token.TokenType.SLASH;
@@ -22,15 +23,19 @@ import static ru.vlade1k.scanner.token.TokenType.STRING;
 import static ru.vlade1k.scanner.token.TokenType.TRUE;
 
 import ru.vlade1k.JLoxInterpreter;
-import ru.vlade1k.parser.exceptions.ParseException;
 import ru.vlade1k.parser.ast.expression.BinaryExpression;
 import ru.vlade1k.parser.ast.expression.Expression;
 import ru.vlade1k.parser.ast.expression.GroupingExpression;
 import ru.vlade1k.parser.ast.expression.LiteralExpression;
 import ru.vlade1k.parser.ast.expression.UnaryExpression;
+import ru.vlade1k.parser.ast.statements.Statement;
+import ru.vlade1k.parser.ast.statements.StatementExpression;
+import ru.vlade1k.parser.ast.statements.StatementPrint;
+import ru.vlade1k.parser.exceptions.ParseException;
 import ru.vlade1k.scanner.token.Token;
 import ru.vlade1k.scanner.token.TokenType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Parser {
@@ -41,12 +46,33 @@ public class Parser {
     this.tokens = tokens;
   }
 
-  public Expression parse() {
-    try {
-      return expression();
-    } catch (ParseException error) {
-      return null;
+  public List<Statement> parse() {
+    List<Statement> statements = new ArrayList<>();
+    while (!isAtEnd()) {
+      statements.add(statement());
     }
+
+    return statements;
+  }
+
+  private Statement statement() {
+    if (match(PRINT)) {
+      return printStatement();
+    }
+
+    return expressionStatement();
+  }
+
+  private Statement printStatement() {
+    Expression value = expression();
+    consume(SEMICOLON, "Expected ';' after value");
+    return new StatementPrint(value);
+  }
+
+  private Statement expressionStatement() {
+    Expression expression = expression();
+    consume(SEMICOLON, "Expected ';' after value");
+    return new StatementExpression(expression);
   }
 
   private Expression expression() {
