@@ -17,7 +17,6 @@ import java.nio.file.Paths;
 import java.util.List;
 
 public class JLoxInterpreter {
-
   private static final Interpreter interpreter = new Interpreter();
   private static boolean hadError;
   private static boolean hadRuntimeError = false;
@@ -65,8 +64,6 @@ public class JLoxInterpreter {
     Scanner scanner = new Scanner(source);
     List<Token> tokens = scanner.scanTokens();
     Parser parser = new Parser(tokens);
-
-    //TODO: should add visualization by something library
     List<Statement> statements = parser.parse();
 
     if (hadError) return;

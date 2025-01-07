@@ -3,10 +3,13 @@ package ru.vlade1k.parser;
 import static ru.vlade1k.scanner.token.TokenType.BANG;
 import static ru.vlade1k.scanner.token.TokenType.BANG_EQUAL;
 import static ru.vlade1k.scanner.token.TokenType.EOF;
+import static ru.vlade1k.scanner.token.TokenType.EQUAL;
 import static ru.vlade1k.scanner.token.TokenType.EQUAL_EQUAL;
 import static ru.vlade1k.scanner.token.TokenType.FALSE;
 import static ru.vlade1k.scanner.token.TokenType.GREATER;
 import static ru.vlade1k.scanner.token.TokenType.GREATER_EQUAL;
+import static ru.vlade1k.scanner.token.TokenType.IDENTIFIER;
+import static ru.vlade1k.scanner.token.TokenType.LEFT_BRACE;
 import static ru.vlade1k.scanner.token.TokenType.LEFT_PAREN;
 import static ru.vlade1k.scanner.token.TokenType.LESS;
 import static ru.vlade1k.scanner.token.TokenType.LESS_EQUAL;
@@ -15,22 +18,28 @@ import static ru.vlade1k.scanner.token.TokenType.NIL;
 import static ru.vlade1k.scanner.token.TokenType.NUMBER;
 import static ru.vlade1k.scanner.token.TokenType.PLUS;
 import static ru.vlade1k.scanner.token.TokenType.PRINT;
+import static ru.vlade1k.scanner.token.TokenType.RIGHT_BRACE;
 import static ru.vlade1k.scanner.token.TokenType.RIGHT_PAREN;
 import static ru.vlade1k.scanner.token.TokenType.SEMICOLON;
 import static ru.vlade1k.scanner.token.TokenType.SLASH;
 import static ru.vlade1k.scanner.token.TokenType.STAR;
 import static ru.vlade1k.scanner.token.TokenType.STRING;
 import static ru.vlade1k.scanner.token.TokenType.TRUE;
+import static ru.vlade1k.scanner.token.TokenType.VAR;
 
 import ru.vlade1k.JLoxInterpreter;
+import ru.vlade1k.parser.ast.expression.AssignmentExpression;
 import ru.vlade1k.parser.ast.expression.BinaryExpression;
 import ru.vlade1k.parser.ast.expression.Expression;
 import ru.vlade1k.parser.ast.expression.GroupingExpression;
 import ru.vlade1k.parser.ast.expression.LiteralExpression;
 import ru.vlade1k.parser.ast.expression.UnaryExpression;
+import ru.vlade1k.parser.ast.expression.VariableExpression;
 import ru.vlade1k.parser.ast.statements.Statement;
+import ru.vlade1k.parser.ast.statements.StatementBlock;
 import ru.vlade1k.parser.ast.statements.StatementExpression;
 import ru.vlade1k.parser.ast.statements.StatementPrint;
+import ru.vlade1k.parser.ast.statements.StatementVar;
 import ru.vlade1k.parser.exceptions.ParseException;
 import ru.vlade1k.scanner.token.Token;
 import ru.vlade1k.scanner.token.TokenType;
@@ -49,10 +58,34 @@ public class Parser {
   public List<Statement> parse() {
     List<Statement> statements = new ArrayList<>();
     while (!isAtEnd()) {
-      statements.add(statement());
+      statements.add(declaration());
     }
 
     return statements;
+  }
+
+  private Statement declaration() {
+    try {
+      if (match(VAR)) {
+        return varDeclaration();
+      }
+      return statement();
+    } catch (ParseException ex) {
+      synchronize();
+      return null;
+    }
+  }
+
+  private Statement varDeclaration() {
+    Token name = consume(IDENTIFIER, "Expect variable name.");
+
+    Expression initializer = null;
+    if (match(EQUAL)) {
+      initializer = expression();
+    }
+
+    consume(SEMICOLON, "Expect ';' after variable declaration.");
+    return new StatementVar(initializer, name);
   }
 
   private Statement statement() {
@@ -60,7 +93,21 @@ public class Parser {
       return printStatement();
     }
 
+    if (match(LEFT_BRACE)) {
+      return new StatementBlock(block());
+    }
+
     return expressionStatement();
+  }
+
+  private List<Statement> block() {
+    List<Statement> statements = new ArrayList<>();
+    while(!check(RIGHT_BRACE) && !isAtEnd()) {
+      statements.add(declaration());
+    }
+
+    consume(RIGHT_BRACE, "Expect '}' after block.");
+    return statements;
   }
 
   private Statement printStatement() {
@@ -76,7 +123,25 @@ public class Parser {
   }
 
   private Expression expression() {
-    return equality();
+    return assignment();
+  }
+
+  private Expression assignment() {
+    Expression expr = equality();
+
+    if (match(EQUAL)) {
+      Token equals = previous();
+      Expression value = assignment();
+
+      if (expr instanceof VariableExpression) {
+        Token name = ((VariableExpression)expr).getName();
+        return new AssignmentExpression(name, value);
+      }
+
+      error(equals, "Invalid assignment target.");
+    }
+
+    return expr;
   }
 
   private Expression equality() {
@@ -144,6 +209,10 @@ public class Parser {
 
     if (match(NUMBER, STRING)) {
       return new LiteralExpression(previous().getLiteral());
+    }
+
+    if (match(IDENTIFIER)) {
+      return new VariableExpression(previous());
     }
 
     if (match(LEFT_PAREN)) {
