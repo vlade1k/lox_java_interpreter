@@ -7,6 +7,7 @@ import ru.vlade1k.parser.ast.expression.BinaryExpression;
 import ru.vlade1k.parser.ast.expression.Expression;
 import ru.vlade1k.parser.ast.expression.GroupingExpression;
 import ru.vlade1k.parser.ast.expression.LiteralExpression;
+import ru.vlade1k.parser.ast.expression.LogicalExpression;
 import ru.vlade1k.parser.ast.expression.UnaryExpression;
 import ru.vlade1k.parser.ast.expression.VariableExpression;
 import ru.vlade1k.parser.ast.statements.IfStatement;
@@ -15,9 +16,11 @@ import ru.vlade1k.parser.ast.statements.StatementBlock;
 import ru.vlade1k.parser.ast.statements.StatementExpression;
 import ru.vlade1k.parser.ast.statements.StatementPrint;
 import ru.vlade1k.parser.ast.statements.StatementVar;
+import ru.vlade1k.parser.ast.statements.WhileStatement;
 import ru.vlade1k.parser.ast.visitor.ExpressionVisitor;
 import ru.vlade1k.parser.ast.visitor.StatementVisitor;
 import ru.vlade1k.scanner.token.Token;
+import ru.vlade1k.scanner.token.TokenType;
 
 import java.util.List;
 
@@ -124,6 +127,19 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
     Expression value = expression.getValue();
     environment.assign(expression.getName(), evaluate(value));
     return value;
+  }
+
+  @Override
+  public Object visitLogical(LogicalExpression expression) {
+    Object left = evaluate(expression.getLeft());
+
+    if (expression.getOperator().getType() == TokenType.OR) {
+      if (isTruthy(left)) return left;
+    } else {
+      if (!isTruthy(left)) return left;
+    }
+
+    return evaluate(expression.getRight());
   }
 
   @Override

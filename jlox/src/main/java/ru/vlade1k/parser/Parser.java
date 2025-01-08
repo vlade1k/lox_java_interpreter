@@ -1,5 +1,6 @@
 package ru.vlade1k.parser;
 
+import static ru.vlade1k.scanner.token.TokenType.AND;
 import static ru.vlade1k.scanner.token.TokenType.BANG;
 import static ru.vlade1k.scanner.token.TokenType.BANG_EQUAL;
 import static ru.vlade1k.scanner.token.TokenType.ELSE;
@@ -18,6 +19,7 @@ import static ru.vlade1k.scanner.token.TokenType.LESS_EQUAL;
 import static ru.vlade1k.scanner.token.TokenType.MINUS;
 import static ru.vlade1k.scanner.token.TokenType.NIL;
 import static ru.vlade1k.scanner.token.TokenType.NUMBER;
+import static ru.vlade1k.scanner.token.TokenType.OR;
 import static ru.vlade1k.scanner.token.TokenType.PLUS;
 import static ru.vlade1k.scanner.token.TokenType.PRINT;
 import static ru.vlade1k.scanner.token.TokenType.RIGHT_BRACE;
@@ -28,6 +30,7 @@ import static ru.vlade1k.scanner.token.TokenType.STAR;
 import static ru.vlade1k.scanner.token.TokenType.STRING;
 import static ru.vlade1k.scanner.token.TokenType.TRUE;
 import static ru.vlade1k.scanner.token.TokenType.VAR;
+import static ru.vlade1k.scanner.token.TokenType.WHILE;
 
 import ru.vlade1k.JLoxInterpreter;
 import ru.vlade1k.parser.ast.expression.AssignmentExpression;
@@ -35,6 +38,7 @@ import ru.vlade1k.parser.ast.expression.BinaryExpression;
 import ru.vlade1k.parser.ast.expression.Expression;
 import ru.vlade1k.parser.ast.expression.GroupingExpression;
 import ru.vlade1k.parser.ast.expression.LiteralExpression;
+import ru.vlade1k.parser.ast.expression.LogicalExpression;
 import ru.vlade1k.parser.ast.expression.UnaryExpression;
 import ru.vlade1k.parser.ast.expression.VariableExpression;
 import ru.vlade1k.parser.ast.statements.IfStatement;
@@ -133,7 +137,7 @@ public class Parser {
 
   private Statement printStatement() {
     Expression value = expression();
-    consume(SEMICOLON, "Expected ';' after value");
+    consume(SEMICOLON, "Expected ';' after value.");
     return new StatementPrint(value);
   }
 
@@ -148,7 +152,7 @@ public class Parser {
   }
 
   private Expression assignment() {
-    Expression expr = equality();
+    Expression expr = or();
 
     if (match(EQUAL)) {
       Token equals = previous();
@@ -160,6 +164,30 @@ public class Parser {
       }
 
       error(equals, "Invalid assignment target.");
+    }
+
+    return expr;
+  }
+
+  private Expression or() {
+    Expression expr = and();
+
+    while (match(OR)) {
+      Token operator = previous();
+      Expression right = and();
+      expr = new LogicalExpression(expr, operator, right);
+    }
+
+    return expr;
+  }
+
+  private Expression and() {
+    Expression expr = equality();
+
+    while (match(AND)) {
+      Token operator = previous();
+      Expression right = equality();
+      expr = new LogicalExpression(expr, operator, right);
     }
 
     return expr;
