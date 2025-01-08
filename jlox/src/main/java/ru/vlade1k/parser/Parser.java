@@ -47,6 +47,7 @@ import ru.vlade1k.parser.ast.statements.StatementBlock;
 import ru.vlade1k.parser.ast.statements.StatementExpression;
 import ru.vlade1k.parser.ast.statements.StatementPrint;
 import ru.vlade1k.parser.ast.statements.StatementVar;
+import ru.vlade1k.parser.ast.statements.WhileStatement;
 import ru.vlade1k.parser.exceptions.ParseException;
 import ru.vlade1k.scanner.token.Token;
 import ru.vlade1k.scanner.token.TokenType;
@@ -104,6 +105,10 @@ public class Parser {
       return printStatement();
     }
 
+    if (match(WHILE)) {
+      return whileStatement();
+    }
+
     if (match(LEFT_BRACE)) {
       return new StatementBlock(block());
     }
@@ -139,6 +144,14 @@ public class Parser {
     Expression value = expression();
     consume(SEMICOLON, "Expected ';' after value.");
     return new StatementPrint(value);
+  }
+
+  private Statement whileStatement() {
+    consume(LEFT_PAREN, "Expected '(' after 'while'.");
+    Expression expression = expression();
+    consume(RIGHT_PAREN, "Expected ')' after 'while' condition.");
+    Statement body = statement();
+    return new WhileStatement(expression, body);
   }
 
   private Statement expressionStatement() {

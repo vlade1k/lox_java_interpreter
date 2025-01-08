@@ -183,6 +183,15 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
     return null;
   }
 
+  @Override
+  public Void visitWhileStatement(WhileStatement whileStatement) {
+    while (isTruthy(evaluate(whileStatement.getCondition()))) {
+      execute(whileStatement.getBody());
+    }
+
+    return null;
+  }
+
   private void executeBlock(List<Statement> statements, Environment environment) {
     Environment previous = this.environment;
     try {
