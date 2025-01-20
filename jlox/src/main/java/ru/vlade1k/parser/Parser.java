@@ -8,6 +8,7 @@ import static ru.vlade1k.scanner.token.TokenType.EOF;
 import static ru.vlade1k.scanner.token.TokenType.EQUAL;
 import static ru.vlade1k.scanner.token.TokenType.EQUAL_EQUAL;
 import static ru.vlade1k.scanner.token.TokenType.FALSE;
+import static ru.vlade1k.scanner.token.TokenType.FOR;
 import static ru.vlade1k.scanner.token.TokenType.GREATER;
 import static ru.vlade1k.scanner.token.TokenType.GREATER_EQUAL;
 import static ru.vlade1k.scanner.token.TokenType.IDENTIFIER;
@@ -53,6 +54,7 @@ import ru.vlade1k.scanner.token.Token;
 import ru.vlade1k.scanner.token.TokenType;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Parser {
@@ -101,6 +103,10 @@ public class Parser {
       return ifStatement();
     }
 
+    if (match(FOR)) {
+      return forStatement();
+    }
+
     if (match(PRINT)) {
       return printStatement();
     }
@@ -119,7 +125,7 @@ public class Parser {
   private Statement ifStatement() {
     consume(LEFT_PAREN, "Expect '(' after 'if'");
     Expression condition = expression();
-    consume(RIGHT_PAREN, "Expect ')' after 'if'");
+    consume(RIGHT_PAREN, "Expect ')' after 'if' logical expression");
 
     Statement ifBranch = statement();
     Statement elseBranch = null;
@@ -128,6 +134,48 @@ public class Parser {
     }
 
     return new IfStatement(condition, ifBranch, elseBranch);
+  }
+
+  private Statement forStatement() {
+    consume(LEFT_PAREN, "Expected '(' after 'for'");
+    Statement initializer;
+    if (match(SEMICOLON)) {
+      initializer = null;
+    } else if (match(VAR)) {
+      initializer = varDeclaration();
+    } else {
+      initializer = expressionStatement();
+    }
+
+    Expression condition = null;
+    if (!check(SEMICOLON)) {
+      condition = expression();
+    }
+
+    consume(SEMICOLON, "Expected ';' after loop condition");
+    Expression increment = null;
+    if (!check(RIGHT_PAREN)) {
+      increment = expression();
+    }
+
+    consume(RIGHT_PAREN, "Expected ';' after for clause.");
+    Statement body = statement();
+
+    if (increment != null) {
+      body = new StatementBlock(Arrays.asList(body, new StatementExpression(increment)));
+    }
+
+    if (condition == null) {
+      condition = new LiteralExpression(true);
+    }
+
+    body = new WhileStatement(condition, body);
+
+    if (initializer != null) {
+      body = new StatementBlock(Arrays.asList(initializer, body));
+    }
+
+    return body;
   }
 
   private List<Statement> block() {
