@@ -1,9 +1,11 @@
 package ru.vlade1k.interpreter;
 
 import ru.vlade1k.JLoxInterpreter;
+import ru.vlade1k.interpreter.callable.LoxCallable;
 import ru.vlade1k.interpreter.exceptions.RuntimeLoxException;
 import ru.vlade1k.parser.ast.expression.AssignmentExpression;
 import ru.vlade1k.parser.ast.expression.BinaryExpression;
+import ru.vlade1k.parser.ast.expression.CallExpression;
 import ru.vlade1k.parser.ast.expression.Expression;
 import ru.vlade1k.parser.ast.expression.GroupingExpression;
 import ru.vlade1k.parser.ast.expression.LiteralExpression;
@@ -22,10 +24,31 @@ import ru.vlade1k.parser.ast.visitor.StatementVisitor;
 import ru.vlade1k.scanner.token.Token;
 import ru.vlade1k.scanner.token.TokenType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<Void> {
-  private Environment environment = new Environment();
+  private final Environment globalEnvironment = new Environment();
+  private Environment environment = globalEnvironment;
+
+  public Interpreter() {
+    globalEnvironment.define("clock", new LoxCallable() {
+      @Override
+      public int getArgumentsCount() {
+        return 0;
+      }
+
+      @Override
+      public Object call(Interpreter interpreter, List<Object> arguments) {
+        return (double) System.currentTimeMillis() / 1000;
+      }
+
+      @Override
+      public String toString() {
+        return "<native function>";
+      }
+    });
+  }
 
   public void interpret(List<Statement> statements) {
     try {
@@ -83,8 +106,12 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
         if (left instanceof String && right instanceof String) {
           return (String) left + (String) right;
         }
-        throw new RuntimeLoxException(binaryExpression.getOperator(),
-            "Operands must be two numbers or two strings.");
+        if (left instanceof String && right instanceof Number) {
+          return (String)left + (Number) right;
+        }
+        if (left instanceof Number && right instanceof String) {
+          return (Number)left + (String) right;
+        }
     }
 
     // Unreachable.
@@ -134,12 +161,38 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
     Object left = evaluate(expression.getLeft());
 
     if (expression.getOperator().getType() == TokenType.OR) {
-      if (isTruthy(left)) return left;
+      if (isTruthy(left)) {
+        return left;
+      }
     } else {
-      if (!isTruthy(left)) return left;
+      if (!isTruthy(left)) {
+        return left;
+      }
     }
 
     return evaluate(expression.getRight());
+  }
+
+  @Override
+  public Object visitCall(CallExpression callExpression) {
+    Object callee = evaluate(callExpression.getCallee());
+
+    List<Object> arguments = new ArrayList<>();
+    for (Expression param : callExpression.getParams()) {
+      arguments.add(evaluate(param));
+    }
+
+    if (!(callee instanceof LoxCallable function)) {
+      throw new RuntimeLoxException(callExpression.getParen(), "Can only call functions and classes.");
+    }
+
+    if (arguments.size() != function.getArgumentsCount()) {
+      throw new RuntimeLoxException(callExpression.getParen(), "Expected "
+                                                              + function.getArgumentsCount()
+                                                              + " arguments, but got " + arguments.size());
+    }
+
+    return function.call(this, arguments);
   }
 
   @Override

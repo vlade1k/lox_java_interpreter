@@ -3,6 +3,7 @@ package ru.vlade1k.parser;
 import static ru.vlade1k.scanner.token.TokenType.AND;
 import static ru.vlade1k.scanner.token.TokenType.BANG;
 import static ru.vlade1k.scanner.token.TokenType.BANG_EQUAL;
+import static ru.vlade1k.scanner.token.TokenType.COMMA;
 import static ru.vlade1k.scanner.token.TokenType.ELSE;
 import static ru.vlade1k.scanner.token.TokenType.EOF;
 import static ru.vlade1k.scanner.token.TokenType.EQUAL;
@@ -36,6 +37,7 @@ import static ru.vlade1k.scanner.token.TokenType.WHILE;
 import ru.vlade1k.JLoxInterpreter;
 import ru.vlade1k.parser.ast.expression.AssignmentExpression;
 import ru.vlade1k.parser.ast.expression.BinaryExpression;
+import ru.vlade1k.parser.ast.expression.CallExpression;
 import ru.vlade1k.parser.ast.expression.Expression;
 import ru.vlade1k.parser.ast.expression.GroupingExpression;
 import ru.vlade1k.parser.ast.expression.LiteralExpression;
@@ -49,6 +51,7 @@ import ru.vlade1k.parser.ast.statements.StatementExpression;
 import ru.vlade1k.parser.ast.statements.StatementPrint;
 import ru.vlade1k.parser.ast.statements.StatementVar;
 import ru.vlade1k.parser.ast.statements.WhileStatement;
+import ru.vlade1k.parser.ast.visitor.ExpressionVisitor;
 import ru.vlade1k.parser.exceptions.ParseException;
 import ru.vlade1k.scanner.token.Token;
 import ru.vlade1k.scanner.token.TokenType;
@@ -309,7 +312,37 @@ public class Parser {
       return new UnaryExpression(operator, right);
     }
 
-    return primary();
+    return call();
+  }
+
+  private Expression call() {
+    Expression expression = primary();
+
+    while (true) {
+      if (match(LEFT_PAREN)) {
+        expression = finishCall(expression);
+      } else {
+        break;
+      }
+    }
+
+    return expression;
+  }
+
+  private Expression finishCall(Expression callee) {
+    List<Expression> arguments = new ArrayList<>();
+    if (!check(RIGHT_PAREN)) {
+      do {
+        if (arguments.size() >= 255) {
+          throw error(peek(), "Can't have more than 255 arguments.");
+        }
+        arguments.add(expression());
+      } while(match(COMMA));
+    }
+
+    Token paren = consume(RIGHT_PAREN, "Expected ')' after arguments.");
+
+    return new CallExpression(callee, paren, arguments);
   }
 
   private Expression primary() {
@@ -334,6 +367,12 @@ public class Parser {
     throw error(peek(), "Expect expression.");
   }
 
+  /**
+   * Проверяет тип текущего токена. Если это искомый тип, то мы двигаем каретку вперёд
+   *
+   * @param types массив типов токенов
+   * @return      true, если текущий токен - один из переданных типов. Иначе false.
+   */
   private boolean match(TokenType... types) {
     for (TokenType type: types) {
       if (check(type)) {
@@ -345,6 +384,12 @@ public class Parser {
     return false;
   }
 
+  /**
+   * Проверяет текущий тип токена на соответствие переданному типу
+   *
+   * @param type токен, с которым сравнивают
+   * @return     true, если тип текущего токена соответствует типу, переданному в параметре
+   */
   private boolean check(TokenType type) {
     if (isAtEnd()) {
       return false;
@@ -360,12 +405,25 @@ public class Parser {
     return tokens.get(current);
   }
 
+  /**
+   * Проверяет тип текущего токена на соответствие переданному.
+   * Если не соответствует - выбрасывается ParseException.
+   *
+   * @param type    тип переданного токена.
+   * @param message сообщение, которое будет в Exception'е.
+   * @return        текущий токен.
+   */
   private Token consume(TokenType type, String message) {
     if (check(type)) return advance();
 
     throw error(peek(), message);
   }
 
+  /**
+   * Возвращает текущий токен и двигает каретку вперёд, он не последний
+   *
+   * @return текущий токен
+   */
   private Token advance() {
     if (!isAtEnd()) current++;
     return previous();
