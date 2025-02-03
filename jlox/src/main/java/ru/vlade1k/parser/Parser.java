@@ -10,6 +10,7 @@ import static ru.vlade1k.scanner.token.TokenType.EQUAL;
 import static ru.vlade1k.scanner.token.TokenType.EQUAL_EQUAL;
 import static ru.vlade1k.scanner.token.TokenType.FALSE;
 import static ru.vlade1k.scanner.token.TokenType.FOR;
+import static ru.vlade1k.scanner.token.TokenType.FUN;
 import static ru.vlade1k.scanner.token.TokenType.GREATER;
 import static ru.vlade1k.scanner.token.TokenType.GREATER_EQUAL;
 import static ru.vlade1k.scanner.token.TokenType.IDENTIFIER;
@@ -44,6 +45,7 @@ import ru.vlade1k.parser.ast.expression.LiteralExpression;
 import ru.vlade1k.parser.ast.expression.LogicalExpression;
 import ru.vlade1k.parser.ast.expression.UnaryExpression;
 import ru.vlade1k.parser.ast.expression.VariableExpression;
+import ru.vlade1k.parser.ast.statements.FunctionDeclarationStatement;
 import ru.vlade1k.parser.ast.statements.IfStatement;
 import ru.vlade1k.parser.ast.statements.Statement;
 import ru.vlade1k.parser.ast.statements.StatementBlock;
@@ -51,7 +53,6 @@ import ru.vlade1k.parser.ast.statements.StatementExpression;
 import ru.vlade1k.parser.ast.statements.StatementPrint;
 import ru.vlade1k.parser.ast.statements.StatementVar;
 import ru.vlade1k.parser.ast.statements.WhileStatement;
-import ru.vlade1k.parser.ast.visitor.ExpressionVisitor;
 import ru.vlade1k.parser.exceptions.ParseException;
 import ru.vlade1k.scanner.token.Token;
 import ru.vlade1k.scanner.token.TokenType;
@@ -82,11 +83,35 @@ public class Parser {
       if (match(VAR)) {
         return varDeclaration();
       }
+      if (match(FUN)) {
+        return functionDeclaration();
+      }
       return statement();
     } catch (ParseException ex) {
       synchronize();
       return null;
     }
+  }
+
+  private Statement functionDeclaration() {
+    Token functionName = consume(IDENTIFIER, "Expect function name.");
+    consume(LEFT_PAREN, "Expect left parent after function name");
+
+    List<Expression> arguments = new ArrayList<>();
+    if (!check(RIGHT_PAREN)) {
+      do {
+        if (arguments.size() >= 255) {
+          throw error(peek(), "Can't have more than 255 arguments.");
+        }
+        arguments.add(expression());
+      } while(match(COMMA));
+    }
+
+    consume(RIGHT_PAREN, "Expected ')' after arguments.");
+    consume(LEFT_BRACE, "Expected '{' before function declaration block.");
+
+    List<Statement> functionBody = blockStatement();
+    return new FunctionDeclarationStatement(functionName, arguments, functionBody);
   }
 
   private Statement varDeclaration() {
@@ -119,7 +144,7 @@ public class Parser {
     }
 
     if (match(LEFT_BRACE)) {
-      return new StatementBlock(block());
+      return new StatementBlock(blockStatement());
     }
 
     return expressionStatement();
@@ -181,7 +206,7 @@ public class Parser {
     return body;
   }
 
-  private List<Statement> block() {
+  private List<Statement> blockStatement() {
     List<Statement> statements = new ArrayList<>();
     while(!check(RIGHT_BRACE) && !isAtEnd()) {
       statements.add(declaration());
@@ -407,7 +432,7 @@ public class Parser {
 
   /**
    * Проверяет тип текущего токена на соответствие переданному.
-   * Если не соответствует - выбрасывается ParseException.
+   * Если соответствует - возвращается текущий токен. Иначе выбрасывается ParseException.
    *
    * @param type    тип переданного токена.
    * @param message сообщение, которое будет в Exception'е.

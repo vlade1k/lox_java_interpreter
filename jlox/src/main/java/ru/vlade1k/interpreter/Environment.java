@@ -24,7 +24,7 @@ public class Environment {
    * @param name    имя добавляемого объекта
    * @param value   значение, которое ассоциируется с именем
    */
-  void define(String name, Object value) {
+  public void define(String name, Object value) {
     values.put(name, value);
   }
 
@@ -33,7 +33,7 @@ public class Environment {
    *
    * @param name    имя добавляемого объекта
    */
-  Object get(Token name) {
+  public Object get(Token name) {
     if (values.containsKey(name.getLexeme())) {
       return values.get(name.getLexeme());
     }
@@ -51,7 +51,7 @@ public class Environment {
    * @param name    имя объекта, чьё значение переопределяется
    * @param value   переприсваиваемое значение
    */
-  void assign(Token name, Object value) {
+  public void assign(Token name, Object value) {
     if (values.containsKey(name.getLexeme())) {
       values.put(name.getLexeme(), value);
       return;

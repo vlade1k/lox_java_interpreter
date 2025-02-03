@@ -2,6 +2,7 @@ package ru.vlade1k.interpreter;
 
 import ru.vlade1k.JLoxInterpreter;
 import ru.vlade1k.interpreter.callable.LoxCallable;
+import ru.vlade1k.interpreter.callable.LoxFunction;
 import ru.vlade1k.interpreter.exceptions.RuntimeLoxException;
 import ru.vlade1k.parser.ast.expression.AssignmentExpression;
 import ru.vlade1k.parser.ast.expression.BinaryExpression;
@@ -12,6 +13,7 @@ import ru.vlade1k.parser.ast.expression.LiteralExpression;
 import ru.vlade1k.parser.ast.expression.LogicalExpression;
 import ru.vlade1k.parser.ast.expression.UnaryExpression;
 import ru.vlade1k.parser.ast.expression.VariableExpression;
+import ru.vlade1k.parser.ast.statements.FunctionDeclarationStatement;
 import ru.vlade1k.parser.ast.statements.IfStatement;
 import ru.vlade1k.parser.ast.statements.Statement;
 import ru.vlade1k.parser.ast.statements.StatementBlock;
@@ -245,7 +247,14 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
     return null;
   }
 
-  private void executeBlock(List<Statement> statements, Environment environment) {
+  @Override
+  public Void visitFunctionDeclarationStatement(FunctionDeclarationStatement funcDeclarationStatement) {
+    LoxFunction function = new LoxFunction(funcDeclarationStatement);
+    environment.define(funcDeclarationStatement.getFunctionName().getLexeme(), function);
+    return null;
+  }
+
+  public void executeBlock(List<Statement> statements, Environment environment) {
     Environment previous = this.environment;
     try {
       this.environment = environment;
@@ -285,13 +294,16 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
     throw new RuntimeLoxException(operator, "Operand must be a number.");
   }
 
-  private void checkNumberOperands(Token operator,
-      Object left, Object right) {
+  private void checkNumberOperands(Token operator, Object left, Object right) {
     if (left instanceof Double && right instanceof Double) {
       return;
     }
 
     throw new RuntimeLoxException(operator, "Operands must be numbers.");
+  }
+
+  public Environment getGlobalEnvironment() {
+    return this.globalEnvironment;
   }
 
   private String stringify(Object object) {

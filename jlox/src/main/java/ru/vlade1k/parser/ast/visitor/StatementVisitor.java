@@ -1,5 +1,6 @@
 package ru.vlade1k.parser.ast.visitor;
 
+import ru.vlade1k.parser.ast.statements.FunctionDeclarationStatement;
 import ru.vlade1k.parser.ast.statements.IfStatement;
 import ru.vlade1k.parser.ast.statements.StatementBlock;
 import ru.vlade1k.parser.ast.statements.StatementExpression;
@@ -14,4 +15,5 @@ public interface StatementVisitor<T> {
   T visitBlockStatement(StatementBlock statementBlock);
   T visitIfStatement(IfStatement ifStatement);
   T visitWhileStatement(WhileStatement whileStatement);
+  T visitFunctionDeclarationStatement(FunctionDeclarationStatement funcDeclarationStatement);
 }
