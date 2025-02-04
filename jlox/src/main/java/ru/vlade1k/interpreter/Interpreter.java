@@ -251,7 +251,7 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
 
   @Override
   public Void visitFunctionDeclarationStatement(FunctionDeclarationStatement funcDeclarationStatement) {
-    LoxFunction function = new LoxFunction(funcDeclarationStatement);
+    LoxFunction function = new LoxFunction(funcDeclarationStatement, environment);
     environment.define(funcDeclarationStatement.getFunctionName().getLexeme(), function);
     return null;
   }

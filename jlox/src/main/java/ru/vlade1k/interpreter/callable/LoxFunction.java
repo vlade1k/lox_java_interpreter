@@ -10,9 +10,11 @@ import java.util.List;
 
 public class LoxFunction implements LoxCallable {
   private final FunctionDeclarationStatement declaration;
+  private final Environment closure;
 
-  public LoxFunction(FunctionDeclarationStatement declaration) {
+  public LoxFunction(FunctionDeclarationStatement declaration, Environment closure) {
     this.declaration = declaration;
+    this.closure = closure;
   }
 
   @Override
@@ -22,7 +24,7 @@ public class LoxFunction implements LoxCallable {
 
   @Override
   public Object call(Interpreter interpreter, List<Object> arguments) {
-    Environment functionEnvironment = new Environment(interpreter.getGlobalEnvironment());
+    Environment functionEnvironment = new Environment(closure);
 
     for (int i = 0; i < arguments.size(); i++) {
       functionEnvironment.define(((VariableExpression)declaration.getArguments().get(i)).getName().getLexeme(),
