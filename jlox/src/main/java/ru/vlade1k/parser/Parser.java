@@ -25,6 +25,7 @@ import static ru.vlade1k.scanner.token.TokenType.NUMBER;
 import static ru.vlade1k.scanner.token.TokenType.OR;
 import static ru.vlade1k.scanner.token.TokenType.PLUS;
 import static ru.vlade1k.scanner.token.TokenType.PRINT;
+import static ru.vlade1k.scanner.token.TokenType.RETURN;
 import static ru.vlade1k.scanner.token.TokenType.RIGHT_BRACE;
 import static ru.vlade1k.scanner.token.TokenType.RIGHT_PAREN;
 import static ru.vlade1k.scanner.token.TokenType.SEMICOLON;
@@ -47,6 +48,7 @@ import ru.vlade1k.parser.ast.expression.UnaryExpression;
 import ru.vlade1k.parser.ast.expression.VariableExpression;
 import ru.vlade1k.parser.ast.statements.FunctionDeclarationStatement;
 import ru.vlade1k.parser.ast.statements.IfStatement;
+import ru.vlade1k.parser.ast.statements.ReturnStatement;
 import ru.vlade1k.parser.ast.statements.Statement;
 import ru.vlade1k.parser.ast.statements.StatementBlock;
 import ru.vlade1k.parser.ast.statements.StatementExpression;
@@ -139,6 +141,10 @@ public class Parser {
       return printStatement();
     }
 
+    if (match(RETURN)) {
+      return returnStatement();
+    }
+
     if (match(WHILE)) {
       return whileStatement();
     }
@@ -220,6 +226,18 @@ public class Parser {
     Expression value = expression();
     consume(SEMICOLON, "Expected ';' after value.");
     return new StatementPrint(value);
+  }
+
+  private Statement returnStatement() {
+    Token keyword = previous();
+    Expression value = null;
+
+    if (!check(SEMICOLON)) {
+      value = expression();
+    }
+
+    consume(SEMICOLON, "Expected ';' after return value.");
+    return new ReturnStatement(keyword, value);
   }
 
   private Statement whileStatement() {

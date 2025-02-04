@@ -3,6 +3,7 @@ package ru.vlade1k.interpreter;
 import ru.vlade1k.JLoxInterpreter;
 import ru.vlade1k.interpreter.callable.LoxCallable;
 import ru.vlade1k.interpreter.callable.LoxFunction;
+import ru.vlade1k.interpreter.exceptions.ReturnException;
 import ru.vlade1k.interpreter.exceptions.RuntimeLoxException;
 import ru.vlade1k.parser.ast.expression.AssignmentExpression;
 import ru.vlade1k.parser.ast.expression.BinaryExpression;
@@ -15,6 +16,7 @@ import ru.vlade1k.parser.ast.expression.UnaryExpression;
 import ru.vlade1k.parser.ast.expression.VariableExpression;
 import ru.vlade1k.parser.ast.statements.FunctionDeclarationStatement;
 import ru.vlade1k.parser.ast.statements.IfStatement;
+import ru.vlade1k.parser.ast.statements.ReturnStatement;
 import ru.vlade1k.parser.ast.statements.Statement;
 import ru.vlade1k.parser.ast.statements.StatementBlock;
 import ru.vlade1k.parser.ast.statements.StatementExpression;
@@ -252,6 +254,16 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
     LoxFunction function = new LoxFunction(funcDeclarationStatement);
     environment.define(funcDeclarationStatement.getFunctionName().getLexeme(), function);
     return null;
+  }
+
+  @Override
+  public Void visitReturnStatement(ReturnStatement returnStatement) throws ReturnException {
+    Object value = null;
+    if (returnStatement.getValue() != null) {
+      value = evaluate(returnStatement.getValue());
+    }
+
+    throw new ReturnException(value);
   }
 
   public void executeBlock(List<Statement> statements, Environment environment) {

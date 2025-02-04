@@ -1,7 +1,9 @@
 package ru.vlade1k.parser.ast.visitor;
 
+import ru.vlade1k.interpreter.exceptions.ReturnException;
 import ru.vlade1k.parser.ast.statements.FunctionDeclarationStatement;
 import ru.vlade1k.parser.ast.statements.IfStatement;
+import ru.vlade1k.parser.ast.statements.ReturnStatement;
 import ru.vlade1k.parser.ast.statements.StatementBlock;
 import ru.vlade1k.parser.ast.statements.StatementExpression;
 import ru.vlade1k.parser.ast.statements.StatementPrint;
@@ -16,4 +18,5 @@ public interface StatementVisitor<T> {
   T visitIfStatement(IfStatement ifStatement);
   T visitWhileStatement(WhileStatement whileStatement);
   T visitFunctionDeclarationStatement(FunctionDeclarationStatement funcDeclarationStatement);
+  T visitReturnStatement(ReturnStatement returnStatement) throws ReturnException;
 }

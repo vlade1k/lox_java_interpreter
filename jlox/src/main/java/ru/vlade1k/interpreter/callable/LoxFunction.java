@@ -2,6 +2,7 @@ package ru.vlade1k.interpreter.callable;
 
 import ru.vlade1k.interpreter.Environment;
 import ru.vlade1k.interpreter.Interpreter;
+import ru.vlade1k.interpreter.exceptions.ReturnException;
 import ru.vlade1k.parser.ast.expression.VariableExpression;
 import ru.vlade1k.parser.ast.statements.FunctionDeclarationStatement;
 
@@ -27,8 +28,11 @@ public class LoxFunction implements LoxCallable {
       functionEnvironment.define(((VariableExpression)declaration.getArguments().get(i)).getName().getLexeme(),
                                  arguments.get(i));
     }
-
-    interpreter.executeBlock(declaration.getBody(), functionEnvironment);
+    try {
+      interpreter.executeBlock(declaration.getBody(), functionEnvironment);
+    } catch (ReturnException returnEx) {
+      return returnEx.getValue();
+    }
     return null;
   }
 }
