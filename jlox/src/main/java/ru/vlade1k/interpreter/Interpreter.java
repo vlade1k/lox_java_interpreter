@@ -18,10 +18,10 @@ import ru.vlade1k.parser.ast.statements.FunctionDeclarationStatement;
 import ru.vlade1k.parser.ast.statements.IfStatement;
 import ru.vlade1k.parser.ast.statements.ReturnStatement;
 import ru.vlade1k.parser.ast.statements.Statement;
-import ru.vlade1k.parser.ast.statements.StatementBlock;
-import ru.vlade1k.parser.ast.statements.StatementExpression;
-import ru.vlade1k.parser.ast.statements.StatementPrint;
-import ru.vlade1k.parser.ast.statements.StatementVar;
+import ru.vlade1k.parser.ast.statements.BlockStatement;
+import ru.vlade1k.parser.ast.statements.ExpressionStatement;
+import ru.vlade1k.parser.ast.statements.PrintStatement;
+import ru.vlade1k.parser.ast.statements.VarStatement;
 import ru.vlade1k.parser.ast.statements.WhileStatement;
 import ru.vlade1k.parser.ast.visitor.ExpressionVisitor;
 import ru.vlade1k.parser.ast.visitor.StatementVisitor;
@@ -108,13 +108,13 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
           return (double) left + (double) right;
         }
         if (left instanceof String && right instanceof String) {
-          return (String) left + (String) right;
+          return left + (String) right;
         }
         if (left instanceof String && right instanceof Number) {
-          return (String)left + (Number) right;
+          return (String)left + right;
         }
         if (left instanceof Number && right instanceof String) {
-          return (Number)left + (String) right;
+          return left + (String) right;
         }
     }
 
@@ -200,7 +200,7 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
   }
 
   @Override
-  public Void visitVarStatement(StatementVar statementVar) {
+  public Void visitVarStatement(VarStatement statementVar) {
     Object value = null;
     if (statementVar.getValue() != null) {
       value = evaluate(statementVar.getValue());
@@ -211,19 +211,19 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
   }
 
   @Override
-  public Void visitBlockStatement(StatementBlock statementBlock) {
+  public Void visitBlockStatement(BlockStatement statementBlock) {
     executeBlock(statementBlock.getStatements(), new Environment(environment));
     return null;
   }
 
   @Override
-  public Void visitStatementExpression(StatementExpression statement) {
+  public Void visitStatementExpression(ExpressionStatement statement) {
     evaluate(statement.getValue());
     return null;
   }
 
   @Override
-  public Void visitPrintStatement(StatementPrint statementPrint) {
+  public Void visitPrintStatement(PrintStatement statementPrint) {
     Object value = evaluate(statementPrint.getValue());
     System.out.println(stringify(value));
     return null;
@@ -312,10 +312,6 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
     }
 
     throw new RuntimeLoxException(operator, "Operands must be numbers.");
-  }
-
-  public Environment getGlobalEnvironment() {
-    return this.globalEnvironment;
   }
 
   private String stringify(Object object) {

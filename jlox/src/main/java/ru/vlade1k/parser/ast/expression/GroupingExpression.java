@@ -3,7 +3,7 @@ package ru.vlade1k.parser.ast.expression;
 import ru.vlade1k.parser.ast.visitor.ExpressionVisitor;
 
 public class GroupingExpression extends Expression {
-  private Expression expression;
+  private final Expression expression;
 
   public GroupingExpression(Expression expression) {
     this.expression = expression;

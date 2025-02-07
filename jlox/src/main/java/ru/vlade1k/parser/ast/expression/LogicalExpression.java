@@ -4,9 +4,9 @@ import ru.vlade1k.parser.ast.visitor.ExpressionVisitor;
 import ru.vlade1k.scanner.token.Token;
 
 public class LogicalExpression extends Expression {
-  private Expression left;
-  private Token operator;
-  private Expression right;
+  private final Expression left;
+  private final Token operator;
+  private final Expression right;
 
   public LogicalExpression(Expression left, Token operator, Expression right) {
     this.left = left;

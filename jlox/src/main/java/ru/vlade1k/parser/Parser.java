@@ -50,10 +50,10 @@ import ru.vlade1k.parser.ast.statements.FunctionDeclarationStatement;
 import ru.vlade1k.parser.ast.statements.IfStatement;
 import ru.vlade1k.parser.ast.statements.ReturnStatement;
 import ru.vlade1k.parser.ast.statements.Statement;
-import ru.vlade1k.parser.ast.statements.StatementBlock;
-import ru.vlade1k.parser.ast.statements.StatementExpression;
-import ru.vlade1k.parser.ast.statements.StatementPrint;
-import ru.vlade1k.parser.ast.statements.StatementVar;
+import ru.vlade1k.parser.ast.statements.BlockStatement;
+import ru.vlade1k.parser.ast.statements.ExpressionStatement;
+import ru.vlade1k.parser.ast.statements.PrintStatement;
+import ru.vlade1k.parser.ast.statements.VarStatement;
 import ru.vlade1k.parser.ast.statements.WhileStatement;
 import ru.vlade1k.parser.exceptions.ParseException;
 import ru.vlade1k.scanner.token.Token;
@@ -125,7 +125,7 @@ public class Parser {
     }
 
     consume(SEMICOLON, "Expect ';' after variable declaration.");
-    return new StatementVar(initializer, name);
+    return new VarStatement(initializer, name);
   }
 
   private Statement statement() {
@@ -150,7 +150,7 @@ public class Parser {
     }
 
     if (match(LEFT_BRACE)) {
-      return new StatementBlock(blockStatement());
+      return new BlockStatement(blockStatement());
     }
 
     return expressionStatement();
@@ -196,7 +196,7 @@ public class Parser {
     Statement body = statement();
 
     if (increment != null) {
-      body = new StatementBlock(Arrays.asList(body, new StatementExpression(increment)));
+      body = new BlockStatement(Arrays.asList(body, new ExpressionStatement(increment)));
     }
 
     if (condition == null) {
@@ -206,7 +206,7 @@ public class Parser {
     body = new WhileStatement(condition, body);
 
     if (initializer != null) {
-      body = new StatementBlock(Arrays.asList(initializer, body));
+      body = new BlockStatement(Arrays.asList(initializer, body));
     }
 
     return body;
@@ -225,7 +225,7 @@ public class Parser {
   private Statement printStatement() {
     Expression value = expression();
     consume(SEMICOLON, "Expected ';' after value.");
-    return new StatementPrint(value);
+    return new PrintStatement(value);
   }
 
   private Statement returnStatement() {
@@ -251,7 +251,7 @@ public class Parser {
   private Statement expressionStatement() {
     Expression expression = expression();
     consume(SEMICOLON, "Expected ';' after value");
-    return new StatementExpression(expression);
+    return new ExpressionStatement(expression);
   }
 
   private Expression expression() {

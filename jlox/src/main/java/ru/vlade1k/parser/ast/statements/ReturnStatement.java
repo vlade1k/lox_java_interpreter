@@ -6,8 +6,8 @@ import ru.vlade1k.parser.ast.visitor.StatementVisitor;
 import ru.vlade1k.scanner.token.Token;
 
 public class ReturnStatement extends Statement {
-  private Token keyword;
-  private Expression value;
+  private final Token keyword;
+  private final Expression value;
 
   public ReturnStatement(Token keyword, Expression value) {
     this.keyword = keyword;

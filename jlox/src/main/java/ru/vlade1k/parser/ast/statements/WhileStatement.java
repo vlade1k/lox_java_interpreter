@@ -4,8 +4,8 @@ import ru.vlade1k.parser.ast.expression.Expression;
 import ru.vlade1k.parser.ast.visitor.StatementVisitor;
 
 public class WhileStatement extends Statement {
-  private Expression condition;
-  private Statement body;
+  private final Expression condition;
+  private final Statement body;
 
   public WhileStatement(Expression condition, Statement body) {
     this.condition = condition;

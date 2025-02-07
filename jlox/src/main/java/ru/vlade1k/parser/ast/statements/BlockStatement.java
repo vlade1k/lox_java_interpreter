@@ -4,11 +4,11 @@ import ru.vlade1k.parser.ast.visitor.StatementVisitor;
 
 import java.util.List;
 
-public class StatementBlock extends Statement {
+public class BlockStatement extends Statement {
 
   private final List<Statement> statements;
 
-  public StatementBlock(List<Statement> statements) {
+  public BlockStatement(List<Statement> statements) {
     this.statements = statements;
   }
 

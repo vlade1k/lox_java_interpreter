@@ -4,8 +4,8 @@ import ru.vlade1k.parser.ast.visitor.ExpressionVisitor;
 import ru.vlade1k.scanner.token.Token;
 
 public class UnaryExpression extends Expression {
-  private Token operator;
-  private Expression right;
+  private final Token operator;
+  private final Expression right;
 
   public UnaryExpression(Token operator, Expression right) {
     this.operator = operator;

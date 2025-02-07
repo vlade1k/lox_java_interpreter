@@ -4,7 +4,7 @@ import ru.vlade1k.parser.ast.visitor.ExpressionVisitor;
 import ru.vlade1k.scanner.token.Token;
 
 public class VariableExpression extends Expression {
-  private Token name;
+  private final Token name;
 
   public VariableExpression(Token name) {
     this.name = name;
