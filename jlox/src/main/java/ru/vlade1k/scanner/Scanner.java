@@ -7,38 +7,37 @@ import ru.vlade1k.scanner.token.Token;
 import ru.vlade1k.scanner.token.TokenType;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class Scanner {
+  private static final Map<String, TokenType> KEYWORDS = Map.ofEntries(
+    Map.entry("and",    AND),
+    Map.entry("class",  CLASS),
+    Map.entry("else",   ELSE),
+    Map.entry("false",  FALSE),
+    Map.entry("for",    FOR),
+    Map.entry("fun",    FUN),
+    Map.entry("if",     IF),
+    Map.entry("nil",    NIL),
+    Map.entry("or",     OR),
+    Map.entry("print",  PRINT),
+    Map.entry("return", RETURN),
+    Map.entry("super",  SUPER),
+    Map.entry("this",   THIS),
+    Map.entry("true",   TRUE),
+    Map.entry("var",    VAR),
+    Map.entry("while",  WHILE)
+  );
+
   private final String source;
   private final List<Token> tokens = new ArrayList<>();
   private int start = 0;
   private int current = 0;
   private int line = 1;
-
-  private static final Map<String, TokenType> keywords;
-
-  static {
-    keywords = new HashMap<>();
-    keywords.put("and",    AND);
-    keywords.put("class",  CLASS);
-    keywords.put("else",   ELSE);
-    keywords.put("false",  FALSE);
-    keywords.put("for",    FOR);
-    keywords.put("fun",    FUN);
-    keywords.put("if",     IF);
-    keywords.put("nil",    NIL);
-    keywords.put("or",     OR);
-    keywords.put("print",  PRINT);
-    keywords.put("return", RETURN);
-    keywords.put("super",  SUPER);
-    keywords.put("this",   THIS);
-    keywords.put("true",   TRUE);
-    keywords.put("var",    VAR);
-    keywords.put("while",  WHILE);
-  }
 
   public Scanner(String source) {
     this.source = source;
@@ -149,7 +148,7 @@ public class Scanner {
     while(isAlphaNumeric(peek())) advance();
 
     String text = source.substring(start, current);
-    TokenType type = keywords.get(text);
+    TokenType type = KEYWORDS.get(text);
     if (type == null) {
       type = IDENTIFIER;
     }
