@@ -22,26 +22,16 @@ public class JLoxInterpreter {
   private static boolean hadRuntimeError = false;
 
   public static void main(String[] args) throws IOException {
-    if (args.length > 1) {
-      System.out.println("Usage: jlox[script]");
-      System.exit(64);
-    } else if (args.length == 1) {
-      runFile(args[0]);
-    }
-    else {
-      runPrompt();
-    }
-  }
-
-  private static void runFile(String path) throws IOException {
-    byte[] bytes = Files.readAllBytes(Path.of(path));
-    run(new String(bytes, Charset.defaultCharset()));
-
-    if (hadError) {
-      System.exit(65);
-    }
-    if (hadRuntimeError) {
-      System.exit(70);
+    switch (args.length) {
+      case 0:
+        runPrompt();
+        break;
+      case 1:
+        runFile(args[0]);
+        break;
+      default:
+        System.out.println("Usage: jlox[script]");
+        System.exit(64);
     }
   }
 
@@ -57,6 +47,18 @@ public class JLoxInterpreter {
       }
       run(line);
       hadError = false;
+    }
+  }
+
+  private static void runFile(String path) throws IOException {
+    byte[] bytes = Files.readAllBytes(Path.of(path));
+    run(new String(bytes, Charset.defaultCharset()));
+
+    if (hadError) {
+      System.exit(65);
+    }
+    if (hadRuntimeError) {
+      System.exit(70);
     }
   }
 
