@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Set;
 
-public class AllTokensTest extends ScannerAbstractTest {
+public class AllSupportedTokensTest extends ScannerAbstractTest {
   private static final EnumSet<TokenType> NOT_SUPPORTED_TOKENS = EnumSet.of(
       TokenType.CLASS,
       TokenType.SUPER,
@@ -24,7 +24,7 @@ public class AllTokensTest extends ScannerAbstractTest {
                                               .filter(tokenType -> !NOT_SUPPORTED_TOKENS.contains(tokenType))
                                               .toList());
 
-  protected AllTokensTest() throws IOException {
+  protected AllSupportedTokensTest() throws IOException {
     super("all-tokens.lox");
   }
 
