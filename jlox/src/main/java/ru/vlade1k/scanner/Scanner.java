@@ -1,17 +1,52 @@
 package ru.vlade1k.scanner;
 
-import static ru.vlade1k.scanner.token.TokenType.*;
+import static ru.vlade1k.scanner.token.TokenType.AND;
+import static ru.vlade1k.scanner.token.TokenType.BANG;
+import static ru.vlade1k.scanner.token.TokenType.BANG_EQUAL;
+import static ru.vlade1k.scanner.token.TokenType.CLASS;
+import static ru.vlade1k.scanner.token.TokenType.COMMA;
+import static ru.vlade1k.scanner.token.TokenType.DOT;
+import static ru.vlade1k.scanner.token.TokenType.ELSE;
+import static ru.vlade1k.scanner.token.TokenType.EOF;
+import static ru.vlade1k.scanner.token.TokenType.EQUAL;
+import static ru.vlade1k.scanner.token.TokenType.EQUAL_EQUAL;
+import static ru.vlade1k.scanner.token.TokenType.FALSE;
+import static ru.vlade1k.scanner.token.TokenType.FOR;
+import static ru.vlade1k.scanner.token.TokenType.FUN;
+import static ru.vlade1k.scanner.token.TokenType.GREATER;
+import static ru.vlade1k.scanner.token.TokenType.GREATER_EQUAL;
+import static ru.vlade1k.scanner.token.TokenType.IDENTIFIER;
+import static ru.vlade1k.scanner.token.TokenType.IF;
+import static ru.vlade1k.scanner.token.TokenType.LEFT_BRACE;
+import static ru.vlade1k.scanner.token.TokenType.LEFT_PAREN;
+import static ru.vlade1k.scanner.token.TokenType.LESS;
+import static ru.vlade1k.scanner.token.TokenType.LESS_EQUAL;
+import static ru.vlade1k.scanner.token.TokenType.MINUS;
+import static ru.vlade1k.scanner.token.TokenType.NIL;
+import static ru.vlade1k.scanner.token.TokenType.NUMBER;
+import static ru.vlade1k.scanner.token.TokenType.OR;
+import static ru.vlade1k.scanner.token.TokenType.PLUS;
+import static ru.vlade1k.scanner.token.TokenType.PRINT;
+import static ru.vlade1k.scanner.token.TokenType.RETURN;
+import static ru.vlade1k.scanner.token.TokenType.RIGHT_BRACE;
+import static ru.vlade1k.scanner.token.TokenType.RIGHT_PAREN;
+import static ru.vlade1k.scanner.token.TokenType.SEMICOLON;
+import static ru.vlade1k.scanner.token.TokenType.SLASH;
+import static ru.vlade1k.scanner.token.TokenType.STAR;
+import static ru.vlade1k.scanner.token.TokenType.STRING;
+import static ru.vlade1k.scanner.token.TokenType.SUPER;
+import static ru.vlade1k.scanner.token.TokenType.THIS;
+import static ru.vlade1k.scanner.token.TokenType.TRUE;
+import static ru.vlade1k.scanner.token.TokenType.VAR;
+import static ru.vlade1k.scanner.token.TokenType.WHILE;
 
 import ru.vlade1k.JLoxInterpreter;
 import ru.vlade1k.scanner.token.Token;
 import ru.vlade1k.scanner.token.TokenType;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 public class Scanner {
   private static final Map<String, TokenType> KEYWORDS = Map.ofEntries(
@@ -53,19 +88,6 @@ public class Scanner {
     return tokens;
   }
 
-  private void addToken(TokenType type) {
-    addToken(type, null);
-  }
-
-  private void addToken(TokenType type, Object literal) {
-    String text = source.substring(start, current);
-    tokens.add(new Token(type, text, literal, line));
-  }
-
-  private char advance() {
-    return source.charAt(current++);
-  }
-
   private void scanToken() {
     char c = advance();
     switch (c) {
@@ -93,7 +115,6 @@ public class Scanner {
         break;
       case '/':
         if (match('/')) {
-          // A comment goes until the end of the line.
           while (peek() != '\n' && !isAtEnd()) advance();
         } else {
           addToken(SLASH);
@@ -118,6 +139,19 @@ public class Scanner {
         }
         break;
     }
+  }
+
+  private void addToken(TokenType type) {
+    addToken(type, null);
+  }
+
+  private void addToken(TokenType type, Object literal) {
+    String text = source.substring(start, current);
+    tokens.add(new Token(type, text, literal, line));
+  }
+
+  private char advance() {
+    return source.charAt(current++);
   }
 
   private void string() {
@@ -151,9 +185,9 @@ public class Scanner {
   }
 
   private boolean isAlpha(char c) {
-    return (c >= 'a' && c <= 'z') ||
-           (c >= 'A' && c <= 'Z') ||
-           (c == '_');
+    return    (c >= 'a' && c <= 'z')
+           || (c >= 'A' && c <= 'Z')
+           || (c == '_');
   }
 
   private boolean isAlphaNumeric(char c) {
@@ -168,8 +202,10 @@ public class Scanner {
     while(isDigit(peek())) advance();
 
     if (peek() == '.' && isDigit(peekNext())) {
-      advance();
-      while(isDigit(peek())) advance();
+      do {
+        advance();
+      }
+      while (isDigit(peek()));
     }
 
     addToken(NUMBER, Double.parseDouble(source.substring(start, current)));
