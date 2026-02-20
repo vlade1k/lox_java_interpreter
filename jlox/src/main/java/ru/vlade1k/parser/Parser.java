@@ -270,7 +270,7 @@ public class Parser {
         return new AssignmentExpression(name, value);
       }
 
-      error(equals, "Invalid assignment target.");
+      throw error(equals, "Invalid assignment target.");
     }
 
     return expr;
